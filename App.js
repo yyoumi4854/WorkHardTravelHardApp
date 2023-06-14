@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -98,20 +99,29 @@ export default function App() {
     await saveToDos(newToDos);
   };
 
-  const deleteToDo = (key) => {
-    Alert.alert("Delete To DO?", "정말로요?", [
-      { text: "아니오" },
-      {
-        text: "예",
-        onPress: async () => {
-          const newToDos = { ...toDos };
-          delete newToDos[key];
-          setToDos(newToDos);
-          await saveToDos(newToDos);
+  const deleteToDo = async (key) => {
+    if (Platform.OS === "web") {
+      const ok = confirm("이 To Do를 삭제하실 건가요?");
+      if (ok) {
+        const newToDos = { ...toDos };
+        delete newToDos[key];
+        setToDos(newToDos);
+        await saveToDos(newToDos);
+      }
+    } else {
+      Alert.alert("Delete To DO?", "정말로요?", [
+        { text: "아니오" },
+        {
+          text: "예",
+          onPress: async () => {
+            const newToDos = { ...toDos };
+            delete newToDos[key];
+            setToDos(newToDos);
+            await saveToDos(newToDos);
+          },
         },
-      },
-    ]);
-    return;
+      ]);
+    }
   };
 
   const completedToDo = async (key) => {
